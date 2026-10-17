@@ -214,6 +214,7 @@ def test_private_bundle_omits_secrets_unlisted_documents_and_reuses_only_owner_i
     from scripts import manage
     profile_path, manifest_path, root = owner
     (root / 'config').mkdir()
+    (root / 'config/retrieval.local.jsonl').write_text('synthetic-owner-benchmark-do-not-copy')
     (root / 'services/api').mkdir(parents=True)
     (root / 'services/api/source.py').write_text('# synthetic public source')
     (root / 'services/api/private.key').write_text('synthetic-do-not-copy')
@@ -228,6 +229,7 @@ def test_private_bundle_omits_secrets_unlisted_documents_and_reuses_only_owner_i
     manage.private_bundle()
     bundle = root / 'data/deploy-context'
     assert not (bundle / '.env.local').exists()
+    assert not (bundle / 'config/retrieval.local.jsonl').exists()
     assert not (bundle / 'services/api/private.key').exists()
     assert not (bundle / 'unlisted.txt').exists()
     assert (bundle / 'content/private/garden.md').is_file()

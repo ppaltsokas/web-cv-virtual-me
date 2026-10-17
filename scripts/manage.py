@@ -119,7 +119,7 @@ def private_bundle():
     allowed_dirs = ['services', 'config', 'examples', 'scripts', 'docs', 'infra']
     def ignore(directory, names):
         return [name for name in names if name in {'node_modules', 'dist', '__pycache__', '.pytest_cache', 'secrets'}
-                or name.endswith(('.local.json', '.key', '.pem', '.sqlite', '.db', '.log')) or name.startswith('.env')]
+                or name.endswith(('.local.json', '.local.jsonl', '.key', '.pem', '.sqlite', '.db', '.log')) or name.startswith('.env')]
     destination.mkdir(parents=True)
     for name in allowed_dirs:
         if (ROOT / name).is_dir():
@@ -156,7 +156,7 @@ def private_bundle():
     if features.graph or features.gnn_shadow or features.gnn_active:
         print('Optional graph/GNN artifacts are excluded. Build and evaluate them inside the private context before deployment.')
     # This deliberate private bundle includes owner inputs but always excludes keys.
-    (destination / '.dockerignore').write_text('.git\n.env\n.env.*\nnode_modules\n**/node_modules\n**/dist\n**/__pycache__\n*.log\n', encoding='utf-8')
+    (destination / '.dockerignore').write_text('.git\n.env\n.env.*\nnode_modules\n**/node_modules\n**/dist\n**/__pycache__\n*.log\nconfig/*.local.jsonl\n', encoding='utf-8')
     print('Private deployment context created at data/deploy-context. It contains owner content, no dotenv credentials.')
     print('Keep this directory private. Build/deploy from it; inject runtime secrets on your hosting platform.')
 

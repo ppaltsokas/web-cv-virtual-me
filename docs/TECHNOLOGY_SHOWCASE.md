@@ -137,6 +137,8 @@ Run python -m pytest -q and python scripts/release_check.py. GraphSAGE tests run
 
 The API Dockerfile accepts --build-arg INSTALL_OPTIONAL_STACK=true for Neo4j/Psycopg drivers. PyTorch is needed only for training. Private deployment bundles exclude graph/GNN artifacts: generate and evaluate them inside the private context, whose manifest paths have their own fingerprint, before building. Explicitly ingest that context's graph before selecting hosted Neo4j.
 
+Owner benchmark files are excluded from automatic bundles and Docker contexts. To evaluate inside a private deployment context, deliberately copy only the reviewed benchmark there before running evaluation; the generated Docker ignore file excludes it from the image build.
+
 Generated indexes, model artifacts, owner benchmarks, database data and credentials remain ignored. These commands do not modify the original app or enable hosted features.
 
 ## References

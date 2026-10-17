@@ -18,6 +18,7 @@ output
 tmp
 *.log
 config/*.local.json
+config/*.local.jsonl
 content/private
 services/frontend/public/custom
 .codex
