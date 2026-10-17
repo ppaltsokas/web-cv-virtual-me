@@ -2,6 +2,14 @@
 
 A configurable portfolio with a retro adventure entrance, password-protected CV downloads and an LLM persona that answers from your own profile and documents.
 
+The optional [technology showcase](docs/TECHNOLOGY_SHOWCASE.md) adds Neo4j/GraphRAG, PostgreSQL session state, real PyTorch/PyTorch Geometric GraphSAGE training, shadow reranking, gated canaries and offline evaluation. After installing its optional dependencies, run:
+
+~~~powershell
+python scripts/showcase.py demo
+~~~
+
+These features default to off. The fictional offline demo makes no provider calls.
+
 The included **Alex Morgan** profile, employers, projects and PDFs are fictional examples. Each deployment belongs to one portfolio owner. Visitors do not supply API keys.
 
 ## Quickstart
@@ -63,7 +71,7 @@ python scripts/manage.py index
 
 This command uses your backend API key and incurs embedding usage. It requires `PAID_AI_ENABLED=true`. Startup and deployment do not automatically call an embedding service. The generated FAISS index stays ignored by Git and is rejected if the profile, documents or embedding model change. Rebuild it after changing your content, or continue with keyword retrieval.
 
-Chat uses bounded in-process memory, keeps the first message separately for recall, and refreshes trusted date context on every model call. Restarting the backend clears chats. There is no chat archive, database service, graph/GNN service or optional online evaluator enabled in this template.
+Chat uses bounded in-process memory by default, keeps the first message separately for recall, and refreshes trusted date context on every model call. Optional PostgreSQL session state restores unexpired conversations across backend restarts. Graph retrieval and GraphSAGE reranking have explicit feature flags. Chat archiving and automatic paid online judging remain excluded.
 
 ## Useful commands
 

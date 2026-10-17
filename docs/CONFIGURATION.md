@@ -1,5 +1,7 @@
 # Owner configuration
 
+Optional graph/GNN/PostgreSQL settings are documented in [technology showcase](TECHNOLOGY_SHOWCASE.md) and default to off in the environment example. Owner benchmarks can use ignored config/*.local.jsonl files. Credentials belong in the private backend environment.
+
 `config/profile.example.json` is the complete fictional example. `python scripts/manage.py init` copies it to an ignored local profile and creates a local content manifest. The frontend and backend use the same selected profile.
 
 | Configuration | Purpose |

@@ -21,6 +21,10 @@ The ordinary repository `.dockerignore` excludes real local owner data. The gene
 
 ## Runtime variables
 
+For optional Neo4j/Psycopg drivers, build with INSTALL_OPTIONAL_STACK=true as a Docker build argument. See [technology showcase](TECHNOLOGY_SHOWCASE.md) before enabling graph, GNN or persistence flags. Their model artifacts and selected graph must be built for the exact private deployment context. The default image/deployment keeps these capabilities disabled.
+
+The Cloud Build configuration accepts the substitution _INSTALL_OPTIONAL_STACK=true for this optional image variant; the default substitution is false. Add it alongside your existing _IMAGE substitution when deliberately building the advanced runtime.
+
 | Variable | Frontend | Backend |
 | --- | --- | --- |
 | `PRIVATE_CV_ENABLED=true` | Yes | Yes |

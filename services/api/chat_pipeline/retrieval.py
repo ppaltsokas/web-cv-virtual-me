@@ -3,14 +3,15 @@ from .contracts import RetrievedContext
 from .citations import register_citation_source
 
 class PortfolioRetriever:
-    def __init__(self, knowledge, client):
-        self.knowledge, self.client = knowledge, client
+    def __init__(self, knowledge, client, engine=None):
+        self.knowledge, self.client, self.engine = knowledge, client, engine
 
     def retrieve(self, request):
         session = request.chat_session
         plan = request.intent_plan
         context = RetrievedContext(message=request.message, session_id=request.session_id,
             chat_session=session, has_history=bool(session.history),
+            conversation_summary=getattr(session, 'conversation_summary', ''),
             metadata={'intent_kind': plan.kind, 'grounding_required': plan.kind not in {'social', 'conversation'}})
         if plan.kind in {'social', 'conversation'}:
             return context
@@ -24,7 +25,13 @@ class PortfolioRetriever:
         profile_id = register_citation_source(context, profile.label, ['persona'])
         context.persona_context = f'[{profile_id}] {profile.label}\n<evidence>\n{self.knowledge.profile.evidence()}\n</evidence>'
         evidence = []
-        for chunk in self.knowledge.search(plan.query, self.client()):
+        if self.engine:
+            chunks, diagnostic = self.engine.rank(plan.query, self.client(), request.session_id)
+            context.metadata['retrieval_diagnostics'] = diagnostic
+            context.metadata['retrieval_mode'] = diagnostic['mode']
+        else:
+            chunks = self.knowledge.search(plan.query, self.client())
+        for chunk in chunks:
             if chunk.source == 'profile':
                 continue
             source = register_citation_source(context, chunk.label, ['documents'])

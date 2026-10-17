@@ -1,0 +1,13 @@
+{"schema":"portfolio-retrieval-cases-v1","owner":"Alex Morgan","purpose":"fictional-demo"}
+{"id":"events-implementation","query":"How does Community Events Explorer filter events?","relevant_sources":["events-project"]}
+{"id":"events-limitations","query":"What limitations are documented for Community Events Explorer?","relevant_sources":["events-project"]}
+{"id":"events-prototype","query":"Is Community Events Explorer a live ticketing service?","relevant_sources":["events-project","summary"]}
+{"id":"dashboard-contribution","query":"What did you implement for Customer Insights Dashboard?","relevant_sources":["summary","profile"]}
+{"id":"dashboard-results","query":"Does Customer Insights Dashboard have measured business improvements?","relevant_sources":["summary"]}
+{"id":"studio-role","query":"What do you do at Example Studio?","relevant_sources":["summary","cv","profile"]}
+{"id":"python-services","query":"Describe your Python data-processing work.","relevant_sources":["summary","cv","profile"]}
+{"id":"collaboration","query":"How do you collaborate with product teams and document decisions?","relevant_sources":["summary"]}
+{"id":"education","query":"What education is listed on your fictional CV?","relevant_sources":["cv","profile"]}
+{"id":"events-stack","query":"Which technologies did Community Events Explorer use?","relevant_sources":["events-project","summary","profile"]}
+{"id":"engineering-skills","query":"Which engineering skills do you list?","relevant_sources":["cv","profile"]}
+{"id":"unsupported-scale","query":"Is production scale documented for Customer Insights Dashboard?","relevant_sources":["summary"]}

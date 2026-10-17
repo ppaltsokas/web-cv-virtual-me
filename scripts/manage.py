@@ -62,6 +62,8 @@ def initialize(root=ROOT):
 
 def check():
     profile = load_profile()
+    from services.api.features import Features
+    Features.from_env()  # Validate flags, without connecting to databases.
     knowledge = KnowledgeBase(profile, load_manifest(), ROOT, ROOT / os.getenv('INDEX_DIR', 'data/index'))
     ids = {spec.id for spec in knowledge.manifest.documents if spec.public and spec.path.lower().endswith('.pdf')}
     for project in profile.resume.projects + profile.resume.latestProjects:
@@ -147,6 +149,12 @@ def private_bundle():
         store = json.loads((local_index / 'store.json').read_text())
         store['fingerprint'] = bundled.fingerprint
         (output_index / 'store.json').write_text(json.dumps(store, ensure_ascii=False), encoding='utf-8')
+    # Graph/model artifacts are deliberately not rebound: their versions include
+    # profile, manifest paths and source bytes. Rebuild in the private context.
+    from services.api.features import Features
+    features = Features.from_env()
+    if features.graph or features.gnn_shadow or features.gnn_active:
+        print('Optional graph/GNN artifacts are excluded. Build and evaluate them inside the private context before deployment.')
     # This deliberate private bundle includes owner inputs but always excludes keys.
     (destination / '.dockerignore').write_text('.git\n.env\n.env.*\nnode_modules\n**/node_modules\n**/dist\n**/__pycache__\n*.log\n', encoding='utf-8')
     print('Private deployment context created at data/deploy-context. It contains owner content, no dotenv credentials.')

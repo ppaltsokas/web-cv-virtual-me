@@ -1,0 +1,32 @@
+# Optional local services with independent generated credentials.
+# Run from repo root after: python scripts/showcase.py service-credentials
+# docker compose --env-file .env.local -f infra/docker/compose.showcase.yml up -d
+name: web-cv-showcase
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: portfolio_demo
+      POSTGRES_DB: portfolio_demo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate local service credentials first}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - showcase-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio_demo -d portfolio_demo"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  neo4j:
+    image: neo4j:5.26-community
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?Generate local service credentials first}
+    ports:
+      - "127.0.0.1:57474:7474"
+      - "127.0.0.1:57687:7687"
+    volumes:
+      - showcase-neo4j:/data
+volumes:
+  showcase-postgres:
+  showcase-neo4j:

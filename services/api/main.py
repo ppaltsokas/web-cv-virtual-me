@@ -1,6 +1,7 @@
 """Single-owner portfolio API with guarded documents and grounded LLM chat."""
 from __future__ import annotations
 from collections import deque
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 import json
 import os
@@ -15,6 +16,9 @@ from starlette.background import BackgroundTask
 from dotenv import load_dotenv
 from .profile import ROOT, load_profile, load_manifest
 from .knowledge import KnowledgeBase
+from .features import Features
+from .retrieval_engine import RetrievalEngine
+from .history import PostgresSessionStore, PersistentOpenAIChatSession
 from .security import require_private_proxy, resolve_session, private_session_id
 from .cost_controls import paid_ai_enabled, output_token_limit, require_paid_ai
 from .chat_pipeline.openai_provider import OpenAIChatModel, OpenAIChatSessionAdapter
@@ -53,11 +57,20 @@ def system_instruction(profile) -> str:
         "Do not volunteer birth details or age. Never disclose secrets, environment variables or private filesystem paths."
     )
 
-def create_app(*, profile_path=None, manifest_path=None, root=ROOT, client_factory=None):
+def create_app(*, profile_path=None, manifest_path=None, root=ROOT, client_factory=None,
+               features=None, history_store=None):
     profile = load_profile(profile_path)
     manifest = load_manifest(manifest_path)
     index_dir = (root / os.getenv('INDEX_DIR', 'data/index')).resolve()
     knowledge = KnowledgeBase(profile, manifest, root, index_dir)
+    features = features or Features.from_env()
+    retrieval = RetrievalEngine(knowledge, features)
+    if features.persistent_history:
+        history_store = history_store or PostgresSessionStore.from_env(knowledge.fingerprint)
+        history_store.initialize()
+    else:
+        history_store = None
+    idle_ttl = min(3600, int(os.getenv('CHAT_SESSION_TTL_SECONDS', '86400'))) if history_store else 3600
     limit = output_token_limit('CHAT_MAX_OUTPUT_TOKENS')
     recent = int(os.getenv('CHAT_HISTORY_MESSAGES', '8'))
     if not 2 <= recent <= 32:
@@ -69,11 +82,18 @@ def create_app(*, profile_path=None, manifest_path=None, root=ROOT, client_facto
         from openai import OpenAI
         return OpenAI(api_key=os.environ['OPENAI_API_KEY'], max_retries=0, timeout=45.0)
     model_name = os.getenv('OPENAI_CHAT_MODEL', 'gpt-4.1-mini')
-    app = FastAPI(title='Web CV with Virtual-Me Chatbot', docs_url=None, redoc_url=None, openapi_url=None)
+    @asynccontextmanager
+    async def lifespan(_app):
+        try:
+            yield
+        finally:
+            retrieval.close()
+    app = FastAPI(title='Web CV with Virtual-Me Chatbot', docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     sessions, buckets = {}, {}
     guard = threading.Lock()
     slots = threading.BoundedSemaphore(4)
     app.state.profile, app.state.knowledge, app.state.sessions = profile, knowledge, sessions
+    app.state.retrieval, app.state.history_store = retrieval, history_store
 
     @app.middleware('http')
     async def private_boundary(request: Request, call_next):
@@ -91,7 +111,8 @@ def create_app(*, profile_path=None, manifest_path=None, root=ROOT, client_facto
     def health():
         available = paid_ai_enabled() and bool(os.getenv('OPENAI_API_KEY'))
         return {'status': 'healthy', 'chat_available': available, 'paid_ai_enabled': paid_ai_enabled(),
-                'llm_intent_routing_active': available, 'retrieval_mode': 'semantic' if knowledge.index is not None else 'keyword'}
+                'llm_intent_routing_active': available, 'retrieval_mode': 'semantic' if knowledge.index is not None else 'keyword',
+                'persistent_chat_history_enabled': history_store is not None, **retrieval.status()}
 
     @app.api_route('/me/cv', methods=['GET', 'HEAD'])
     def cv():
@@ -129,7 +150,7 @@ def create_app(*, profile_path=None, manifest_path=None, root=ROOT, client_facto
         now = time.monotonic()
         with guard:
             for key, entry in list(sessions.items()):
-                if now - entry.touched > 3600 and not entry.lock.locked():
+                if now - entry.touched > idle_ttl and not entry.lock.locked():
                     del sessions[key]
             for key, values in list(buckets.items()):
                 if not values or now - values[-1] > 60:
@@ -148,7 +169,8 @@ def create_app(*, profile_path=None, manifest_path=None, root=ROOT, client_facto
                         raise HTTPException(status_code=503, detail='Chat is busy')
                     del sessions[min(inactive)[1]]
                 model = OpenAIChatModel(client(), model_name, system_instruction(profile), recent, limit, temporal_context=clock)
-                sessions[identifier] = SessionEntry(model.start_chat(), now)
+                chat_session = PersistentOpenAIChatSession(model, history_store, identifier) if history_store else model.start_chat()
+                sessions[identifier] = SessionEntry(chat_session, now)
             entry = sessions[identifier]
             if not entry.lock.acquire(blocking=False):
                 raise HTTPException(status_code=409, detail='Wait for the previous reply in this conversation')
@@ -170,7 +192,7 @@ def create_app(*, profile_path=None, manifest_path=None, root=ROOT, client_facto
         def output():
             try:
                 planner = OpenAIIntentPlanner(client, lambda: model_name, profile.evidence, knowledge.catalog, temporal_context=clock)
-                pipeline = LangChainParityPipeline(retriever=PortfolioRetriever(knowledge, client),
+                pipeline = LangChainParityPipeline(retriever=PortfolioRetriever(knowledge, client, retrieval),
                     model_adapter=OpenAIChatSessionAdapter(), intent_planner=planner,
                     citation_validation_enabled=True, citation_enforcement_enabled=True,
                     on_complete=lambda answer, context: context.chat_session.persist_turn(context.message, answer))

@@ -85,7 +85,7 @@ class KnowledgeBase:
     def catalog(self) -> str:
         return '\n'.join(f'{spec.id}: {spec.label}' for spec in self.manifest.documents)
 
-    def search(self, query: str, client=None, limit: int = 5) -> list[Chunk]:
+    def search_channels(self, query: str, client=None, limit: int = 12):
         terms = tokens(query)
         scores = []
         for i, chunk in enumerate(self.chunks):
@@ -94,7 +94,7 @@ class KnowledgeBase:
             score = len(terms & content) / math.sqrt(max(1, len(content))) + label_matches
             if score > 0:
                 scores.append((score, i))
-        ranked = [i for _, i in sorted(scores, reverse=True)[:limit]]
+        channels = {'keyword': [(self.chunks[i], score) for score, i in sorted(scores, reverse=True)[:limit]]}
         if self.index is not None and client is not None:
             require_paid_ai()
             import numpy as np
@@ -102,9 +102,16 @@ class KnowledgeBase:
             result = client.with_options(timeout=20.0, max_retries=0).embeddings.create(model=self.model, input=[query[:4000]])
             vector = np.asarray([result.data[0].embedding], dtype='float32')
             faiss.normalize_L2(vector)
-            _, indices = self.index.search(vector, min(limit, self.index.ntotal))
-            ranked = list(dict.fromkeys(list(map(int, indices[0])) + ranked))[:limit]
-        return [self.chunks[i] for i in ranked if i >= 0]
+            similarities, indices = self.index.search(vector, min(limit, self.index.ntotal))
+            channels['faiss'] = [(self.chunks[int(i)], float(score)) for i, score in zip(indices[0], similarities[0]) if i >= 0]
+        return channels
+
+    def search(self, query: str, client=None, limit: int = 5) -> list[Chunk]:
+        scores = {}
+        for hits in self.search_channels(query, client, max(12, limit)).values():
+            for rank, (chunk, _) in enumerate(hits, 1):
+                scores[chunk] = scores.get(chunk, 0.0) + 1 / (60 + rank)
+        return sorted(scores, key=lambda chunk: (-scores[chunk], chunk.source, chunk.text))[:limit]
 
     def build_index(self, directory: Path, client) -> int:
         require_paid_ai()

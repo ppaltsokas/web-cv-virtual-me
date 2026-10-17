@@ -1,6 +1,8 @@
 steps:
   - name: gcr.io/cloud-builders/docker
-    args: [build, --file, services/api/Dockerfile, --tag, '${_IMAGE}', .]
+    args: [build, --file, services/api/Dockerfile, --build-arg, 'INSTALL_OPTIONAL_STACK=${_INSTALL_OPTIONAL_STACK}', --tag, '${_IMAGE}', .]
 images: ['${_IMAGE}']
+substitutions:
+  _INSTALL_OPTIONAL_STACK: 'false'
 options:
   logging: CLOUD_LOGGING_ONLY

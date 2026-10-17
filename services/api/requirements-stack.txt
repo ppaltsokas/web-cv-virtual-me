@@ -1,0 +1,4 @@
+-r requirements.txt
+# Optional runtime integrations; installation does not enable services.
+neo4j>=5.20,<7
+psycopg[binary]>=3.2.9,<4

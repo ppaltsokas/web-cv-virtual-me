@@ -6,6 +6,7 @@
 *.pem
 secrets/
 config/*.local.json
+config/*.local.jsonl
 content/private/
 services/frontend/public/custom/
 
