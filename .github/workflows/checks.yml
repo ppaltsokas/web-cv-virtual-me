@@ -1,0 +1,29 @@
+name: Template checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      LOAD_DOTENV: 'false'
+      PAID_AI_ENABLED: 'false'
+      PORTFOLIO_PROFILE: config/profile.example.json
+      CONTENT_MANIFEST: config/content.example.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: services/frontend/package-lock.json
+      - run: python -m pip install -r services/api/requirements-dev.txt
+      - run: npm --prefix services/frontend ci --ignore-scripts
+      - run: python -m pytest -q
+      - run: npm --prefix services/frontend run typecheck
+      - run: npm --prefix services/frontend test
+      - run: npm --prefix services/frontend run build
+      - run: python scripts/release_check.py

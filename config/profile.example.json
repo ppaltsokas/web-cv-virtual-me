@@ -1,0 +1,103 @@
+{
+  "timezone": "UTC",
+  "resume": {
+    "personalInfo": {
+      "name": "Alex Morgan",
+      "title": "Software & Data Engineer",
+      "bio": "Fictional example profile. I build useful software and turn messy data into dependable products. Replace this introduction with your own summary, experience and interests.",
+      "email": "alex@example.com",
+      "location": "Your city, country",
+      "socials": {
+        "github": "https://github.com",
+        "linkedin": "https://www.linkedin.com"
+      }
+    },
+    "experience": [
+      {
+        "id": "example-role",
+        "role": "Software Engineer",
+        "company": "Example Studio",
+        "period": "2024 - Present",
+        "description": "Fictional example role. Built data-processing services, collaborated with product teams and improved automated checks. Replace this with your responsibilities and supported achievements.",
+        "technologies": [
+          "Python",
+          "TypeScript",
+          "SQL",
+          "REST APIs"
+        ]
+      }
+    ],
+    "education": [
+      {
+        "id": "example-degree",
+        "degree": "Your degree or qualification",
+        "school": "Example University",
+        "year": "2023"
+      }
+    ],
+    "certifications": [],
+    "latestProjects": [
+      {
+        "id": "example-work",
+        "title": "Customer Insights Dashboard",
+        "description": "Fictional work project: turned sample service data into a dashboard with validated metrics and accessible reports. Replace this with your own contribution, scope and results.",
+        "link": "https://example.com",
+        "technologies": [
+          "Python",
+          "SQL",
+          "Data Visualization"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "id": "example-portfolio",
+        "title": "Community Events Explorer",
+        "description": "Fictional personal project: a small web application for finding and filtering community events. A sample PDF describes the implementation and its limitations.",
+        "technologies": [
+          "TypeScript",
+          "React",
+          "Testing"
+        ],
+        "pdfPath": "events-project",
+        "link": "https://example.com/events"
+      }
+    ],
+    "skills": [
+      {
+        "name": "Engineering",
+        "skills": [
+          "Python",
+          "TypeScript",
+          "React",
+          "SQL",
+          "API Design"
+        ]
+      },
+      {
+        "name": "Working together",
+        "skills": [
+          "Technical Writing",
+          "Collaboration",
+          "Problem Solving"
+        ]
+      }
+    ]
+  },
+  "chat": {
+    "name": "Virtual Alex",
+    "greeting": "Hello! I'm Alex's virtual persona. Ask me about my experience, projects or skills. This demo uses a fictional example profile.",
+    "placeholder": "Ask about my work or projects...",
+    "avatar": "/avatar.svg",
+    "voice": "Warm, clear and concise. Speak in first person as the portfolio owner's virtual persona. Be candid about what is documented and what is unknown."
+  },
+  "entrance": {
+    "title": "Welcome to {name}'s Web CV",
+    "subtitle": "and the Virtual-Me Chatbot"
+  },
+  "site": {
+    "title": "{name} | Web CV",
+    "description": "Explore {name}'s experience, projects and skills, and chat with their virtual persona.",
+    "url": ""
+  }
+}

@@ -1,0 +1,36 @@
+# Credentials and private owner data
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+config/*.local.json
+content/private/
+services/frontend/public/custom/
+
+# Generated knowledge and conversation data
+data/
+models/
+*.sqlite
+*.sqlite3
+*.db
+*.log
+
+# Dependencies and generated output
+node_modules/
+dist/
+.vite/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.coverage
+output/
+tmp/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.codex/

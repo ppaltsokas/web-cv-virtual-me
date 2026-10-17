@@ -1,0 +1,57 @@
+@charset "UTF-8";
+:root{color-scheme:dark;font-family:ui-monospace,"Cascadia Code","Courier New",monospace;color:#f7ebd0;background:#182433;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0}button,input{font:inherit}a{color:inherit}button{cursor:pointer}button:disabled{cursor:wait}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ffda93;outline-offset:4px}
+.entrance{min-height:100svh;isolation:isolate}.room-viewport{position:fixed;inset:0;overflow:hidden;background:#34404c;z-index:-1}
+/* Uniform logical canvases cover the viewport. Portrait art keeps the window, NPC and CRT together. */
+.scene{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);overflow:hidden;isolation:isolate}
+.scene-landscape{width:max(100vw,177.777778svh);height:max(100svh,56.25vw)}
+.scene-portrait{display:none;width:max(100vw,56.25svh);height:max(100svh,177.777778vw)}
+.room-art{display:block;width:100%;height:100%;image-rendering:pixelated}.room{image-rendering:pixelated}
+.npc-idle{position:absolute;z-index:2;left:43.4375%;top:42.5%;width:11.09375%;height:22.222222%;background-image:url('./npc-idle.webp');background-size:300% 100%;background-repeat:no-repeat;image-rendering:pixelated;animation:npc-idle 7.4s steps(1) infinite}
+.crt{position:absolute;z-index:3;left:63.9%;top:39.1%;width:9.9%;height:12.5%;overflow:hidden;background:#17203b;clip-path:polygon(3% 3%,97% 1%,100% 95%,4% 100%)}
+.pirate{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}.crt-scanlines{position:absolute;inset:0;background:repeating-linear-gradient(transparent 0 3px,#0b102d25 3px 4px);pointer-events:none}
+.foliage{position:absolute;z-index:1;left:15.2%;top:4.5%;width:19%;height:28%;opacity:.19;transform-origin:60% 95%;animation:leaves 5.7s steps(8) infinite alternate;image-rendering:pixelated}
+.sunbeam{position:absolute;z-index:1;left:14%;top:17%;width:39%;height:70%;background:#ffdb8d;opacity:.035;clip-path:polygon(0 0,35% 0,100% 100%,80% 100%);pointer-events:none}
+.dust{position:absolute;z-index:4;left:18%;top:18%;width:29%;height:58%;background-image:radial-gradient(circle,#ffe9b4 0 1px,transparent 1px),radial-gradient(circle,#ffe9b4 0 1px,transparent 1px);background-size:83px 109px,137px 151px;background-position:5px 7px,30px 28px;opacity:.2;animation:dust 18s linear infinite;pointer-events:none}
+.scene-portrait .npc-idle{left:30.555556%;top:44.84375%;width:25.555556%;height:13.90625%;background-image:url('./npc-mobile-idle.webp')}
+.scene-portrait .crt{left:63.2%;top:40%;width:19.1%;height:7.9%}
+.scene-portrait .foliage{left:14%;top:13%;width:22%;height:18%}.scene-portrait .sunbeam{left:14%;top:24%;width:49%;height:64%}.scene-portrait .dust{left:17%;top:24%;width:38%;height:50%}
+.scene-portrait .ambient{animation-play-state:paused}
+/* Illustrated title and painted command strip share the room's pixel palette.
+   The native field and button sit exactly inside the wells drawn in the panel asset. */
+.welcome{position:fixed;top:max(16px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(640px,calc(100vw - 24px));text-align:center}
+.welcome h1{margin:0;font-size:24px;line-height:1}.welcome-art{display:block;width:100%;height:auto;image-rendering:pixelated}
+/* Offset the title artwork's transparent lower margin in proportion to its rendered width. */
+.welcome-subtitle{margin:-4% 0 0;color:#fff0c6;font:16px/1.5 "Courier New",monospace;text-shadow:2px 2px 0 #142033,-2px -1px 0 #142033;letter-spacing:0}.welcome-subtitle span{white-space:nowrap}
+/* Flat-color layers under the artwork keep controls readable if the SVG fails, even without JS. */
+.access-panel{position:fixed;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom));width:min(680px,calc(100vw - 48px));aspect-ratio:460/94;background-image:url('./command-panel.svg'),linear-gradient(#b89a64,#b89a64),linear-gradient(#111b27,#111b27),linear-gradient(#293444,#293444);background-size:100% 100%,20.869565% 46.808511%,64.347826% 31.914894%,94% 80%;background-position:center,93.406593% 66%,14.634146% 62.5%,center;background-repeat:no-repeat;image-rendering:pixelated;font-family:"Courier New",monospace}
+.access-panel form,.form-row,.signed-in-actions{display:contents}
+.access-panel label,.access-caption{position:absolute;left:5.217391%;top:17.021277%;margin:0;font:16px/1.2 "Courier New",monospace;color:#f6dca4;text-shadow:2px 2px 0 #111b27}
+.access-panel input,.portfolio-link{position:absolute;left:5.217391%;top:42.553191%;width:64.347826%;height:31.914894%;min-height:44px;min-width:0;margin:0;padding:2px 12px;background:transparent;border:0;border-radius:0;color:#fff0c6;font:20px/1 monospace;caret-color:#f7d892;appearance:none}
+.access-panel input:focus-visible,.start-button:focus-visible,.portfolio-link:focus-visible{outline:2px solid #f7d892;outline-offset:-4px}
+.access-panel input[aria-invalid=true]{box-shadow:inset 0 -2px #e4a381}
+.start-button{position:absolute;left:73.913043%;top:35.106383%;width:20.869565%;height:46.808511%;min-height:44px;display:flex;align-items:center;justify-content:center;margin:0;padding:0;background:transparent;border:0;border-radius:0;color:#232b37;font:16px/1 "Courier New",monospace;text-decoration:none;appearance:none}
+.start-button:hover{background:#fff0bf25}.start-button:active{padding-top:2px}.start-button:disabled{color:#6d6659;cursor:wait}
+.portfolio-link{display:flex;align-items:center;justify-content:center;font:16px/1 "Courier New",monospace;text-decoration:none}.sign-out{font-size:14px}
+.access-status{position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);width:max-content;max-width:100%;margin:0;padding:10px 14px;background:#1c2a3a;border:2px solid #b89b68;box-shadow:2px 2px 0 #0e1725;color:#f3c3a3;font:14px/1.55 "Courier New",monospace;text-align:center}.access-status:empty{display:none}[data-state=submitting] .access-status,[data-state=navigating] .access-status{color:#f2dfb5}
+@keyframes npc-idle{0%,22%,41%,87%,91%,100%{background-position:0 0}23%,40%{background-position:50% 0}88%,90%{background-position:100% 0}}
+@keyframes leaves{to{transform:rotate(1.2deg) translateX(.8%)}}
+@keyframes dust{to{background-position:25px -22px,12px 8px}}
+@media(max-aspect-ratio:3/4){
+  .scene-landscape{display:none}.scene-landscape .ambient{animation-play-state:paused}
+  .scene-portrait{display:block}.scene-portrait .ambient{animation-play-state:running}
+}
+@media(max-width:640px){
+  .welcome{top:max(12px,env(safe-area-inset-top))}.welcome-subtitle{font-size:12px;line-height:1.6}.welcome-subtitle span{display:block}
+  .access-panel{width:min(400px,calc(100vw - 24px));aspect-ratio:340/120;background-image:url('./command-panel-mobile.svg'),linear-gradient(#b89a64,#b89a64),linear-gradient(#111b27,#111b27),linear-gradient(#293444,#293444);background-size:100% 100%,22.941176% 53.333333%,60.588235% 41.666667%,94% 84%;background-position:center,93.129771% 67.857143%,15.671642% 64.285714%,center;bottom:max(12px,env(safe-area-inset-bottom))}
+  .access-panel label,.access-caption{left:6.176471%;top:15%;font-size:14px}
+  .access-panel input,.portfolio-link{left:6.176471%;top:37.5%;width:60.588235%;height:41.666667%;font-size:16px;padding:2px 9px}
+  .start-button{left:71.764706%;top:31.666667%;width:22.941176%;height:53.333333%}.sign-out{font-size:12px}
+  .access-status{font-size:12px;padding:9px 11px}
+}
+@media(max-height:480px){.welcome{width:min(440px,calc(100vw - 28px));top:6px}.welcome-subtitle{font-size:12px}.access-panel{width:min(560px,calc(100vw - 24px));bottom:max(8px,env(safe-area-inset-bottom))}}
+.paused .ambient{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.room{filter:none}.npc-idle,.dust{display:none}}
+
+.welcome-lettering{font-family:Georgia,serif!important;font-weight:900;font-style:italic;font-size:clamp(28px,4.2vw,58px)!important;line-height:1.06!important;color:#ffcc73;text-shadow:2px 2px 0 #682a29,4px 4px 0 #142033,-1px -1px 0 #fff0c6;filter:drop-shadow(0 3px 0 #142033);padding:12px 6px}
+.welcome-subtitle{margin:2px 0 0;font-weight:bold}

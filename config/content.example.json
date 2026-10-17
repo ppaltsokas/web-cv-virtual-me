@@ -1,0 +1,7 @@
+{
+  "documents": [
+    { "id": "summary", "label": "Example professional summary", "path": "examples/content/summary.md", "kind": "summary", "public": false },
+    { "id": "cv", "label": "Fictional example CV", "path": "examples/content/cv.pdf", "kind": "cv", "public": true },
+    { "id": "events-project", "label": "Community Events Explorer project", "path": "examples/content/events-project.pdf", "kind": "document", "public": true }
+  ]
+}
